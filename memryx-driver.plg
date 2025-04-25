@@ -76,7 +76,7 @@ activate() {
 
 # Define Variables
 KERNEL_V="$(uname -r)"
-PACKAGE="MemryX"
+PACKAGE="memryx"
 DL_URL="https://github.com/unraid/unraid-memryx-driver/releases/download/$KERNEL_V"
 
 if [ ! -d "&packages;/${KERNEL_V%%-*}" ]; then
