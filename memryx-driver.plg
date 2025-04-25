@@ -30,20 +30,18 @@ This package contains the MemryX MX3 Module Drivers and installs them to utilize
 <FILE Run="/bin/bash">
 <INLINE>
 
+echo
 download() {
 # Download MemryX Module Drivers
 if wget -q -nc --show-progress --progress=bar:force:noscroll -O "&packages;/${KERNEL_V%%-*}/${LAT_PACKAGE}" "${DL_URL}/${LAT_PACKAGE}" ; then
   wget -q -nc --show-progress --progress=bar:force:noscroll -O "&packages;/${KERNEL_V%%-*}/${LAT_PACKAGE}.md5" "${DL_URL}/${LAT_PACKAGE}.md5"
   if [ "$(md5sum &packages;/${KERNEL_V%%-*}/${LAT_PACKAGE} | awk '{print $1}')" != "$(cat &packages;/${KERNEL_V%%-*}/${LAT_PACKAGE}.md5 | awk '{print $1}')" ]; then
-    echo
     echo "---CHECKSUM ERROR!---"
     rm -rf &plugin; &emhttp;
     exit 1
   fi
-  echo
   echo "----------Successfully downloaded MemryX Module Drivers-----------"
 else
-  echo
   echo "--------------Can't download MemryX Module Drivers----------------"
   rm -rf &plugin; &emhttp;
   exit 1
@@ -52,13 +50,22 @@ fi
 
 check() {
 if ! ls -1 &packages;/${KERNEL_V%%-*}/ | grep -q "${PACKAGE}" ; then
-  LAT_PACKAGE="$(wget -qO- https://api.github.com/repos/unraid/unraid-memryx-driver/releases/tags/${KERNEL_V} | jq -r '.assets[].name' | grep "${PACKAGE}" | grep -E -v '\.md5$' | sort -V | tail -1)"
-  echo
+  # Check GitHub API call rate limit
+  RATE_LIMIT="$(wget -qO- -T 10 https://api.github.com/rate_limit | jq -r '.rate')"
+  if [ "$(echo "${RATE_LIMIT}" | jq -r '.remaining')" == "0" ]; then
+    RESET="$(date -d @"$(echo "${RATE_LIMIT}" | jq -r '.reset')" "+%Y-%m-%d %H:%M:%S")"
+    echo "-----ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR - ERROR------"
+    echo "There are no GitHub API calls left for your IP."
+    echo "The limit will be reset at: ${RESET}"
+    echo
+    rm -rf &plugin; &emhttp;
+    exit 1
+  fi
+  LAT_PACKAGE="$(wget -qO- https://api.github.com/repos/ich777/unraid-memryx-driver/releases/tags/${KERNEL_V} | jq -r '.assets[].name' | grep "${PACKAGE}" | grep -E -v '\.md5$' | sort -V | tail -1)"
   echo "---------------Downloading MemryX Module Drivers!-----------------"
   echo "----This could take some time, please don't close this window!----"
   download
 else
-  echo
   echo "---------------MemryX Module Drivers found locally----------------"
 fi
 }
@@ -77,7 +84,7 @@ activate() {
 # Define Variables
 KERNEL_V="$(uname -r)"
 PACKAGE="memryx"
-DL_URL="https://github.com/unraid/unraid-memryx-driver/releases/download/$KERNEL_V"
+DL_URL="https://github.com/ich777/unraid-memryx-driver/releases/download/$KERNEL_V"
 
 if [ ! -d "&packages;/${KERNEL_V%%-*}" ]; then
   mkdir -p "&packages;/${KERNEL_V%%-*}"
@@ -166,7 +173,6 @@ if [ -z "$(ps aux | grep -E "inotifywait -q /boot/changes.txt -e move_self,delet
   echo "/usr/bin/plugin_update_helper" | at now &gt; /dev/null 2&gt;&amp;1
 fi
 
-echo
 echo "---------Installation of MemryX Module Drivers successful---------"
 echo
 
@@ -180,11 +186,13 @@ echo "---------------------------------------------"
 echo "-----Uninstalling MemryX Module Drivers------"
 echo "---------------------------------------------"
 # Stop mxa_manager
+echo
+echo "Stopping mxa_manager daemon..."
+echo
 kill -SIGTERM $(pgrep --ns $$ mxa_manager)
 # Remove plugin related files
 rm -rf &emhttp;
 rm -rf &plugin;
-echo
 echo "----------------------------------------------------------------------------"
 echo "-------MemryX Module Drivers uninstalled, please reboot your server!--------"
 echo "----------------------------------------------------------------------------"
