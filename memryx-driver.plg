@@ -52,7 +52,7 @@ fi
 
 check() {
 if ! ls -1 &packages;/${KERNEL_V%%-*}/ | grep -q "${PACKAGE}" ; then
-  LAT_PACKAGE="$(wget -qO- https://api.github.com/repos/unraid/unraid-memryx-driver/releases/tags/${KERNEL_V} | jq -r '.assets[].name' | grep "${PACKAGE}" | grep -E -v '\.md5$' | sort -V | tail -1)"
+  LAT_PACKAGE="$(wget -qO- https://api.github.com/repos/ich777/unraid-memryx-driver/releases/tags/${KERNEL_V} | jq -r '.assets[].name' | grep "${PACKAGE}" | grep -E -v '\.md5$' | sort -V | tail -1)"
   echo
   echo "---------------Downloading MemryX Module Drivers!-----------------"
   echo "----This could take some time, please don't close this window!----"
@@ -77,7 +77,7 @@ activate() {
 # Define Variables
 KERNEL_V="$(uname -r)"
 PACKAGE="memryx"
-DL_URL="https://github.com/unraid/unraid-memryx-driver/releases/download/$KERNEL_V"
+DL_URL="https://github.com/ich777/unraid-memryx-driver/releases/download/$KERNEL_V"
 
 if [ ! -d "&packages;/${KERNEL_V%%-*}" ]; then
   mkdir -p "&packages;/${KERNEL_V%%-*}"
