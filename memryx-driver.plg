@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
   <!ENTITY name      "memryx-driver">
   <!ENTITY author    "ich777">
-  <!ENTITY version   "2025.04.25">
+  <!ENTITY version   "2025.04.26">
   <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/unraid-&name;/master">
   <!ENTITY pluginURL "&gitURL;/&name;.plg">
   <!ENTITY plugin    "/boot/config/plugins/&name;">
@@ -14,7 +14,7 @@
 
 <CHANGES>
 
-###2025.04.25
+###2025.04.26
 - Initial release
 
 </CHANGES>
@@ -100,23 +100,23 @@ if ! lsmod | grep "memx_cascade_plus_pcie" >/dev/null 2>&amp;1 ; then
 fi
 
 #Copy over settings files if not found
-if [ ! -f "&plugin;/mxa_manager.config" ]; then
-  cp /etc/memryx/mxa_manager.sample &plugin;/mxa_manager.config
+if [ ! -f "&plugin;/mxa_manager.conf" ]; then
+  cp /etc/memryx/mxa_manager.sample &plugin;/mxa_manager.conf
 fi
-if [ ! -f "&plugin;/power.config" ]; then
-  cp /etc/memryx/power.sample &plugin;/power.config
+if [ ! -f "&plugin;/power.conf" ]; then
+  cp /etc/memryx/power.sample &plugin;/power.conf
 fi
 
 #Check if symlinks for configs are in place
-if [ ! -L /etc/memryx/mxa_manager.config ]; then
-  ln -s &plugin;/mxa_manager.config /etc/memryx/mxa_manager.config
+if [ ! -L /etc/memryx/mxa_manager.conf ]; then
+  ln -s &plugin;/mxa_manager.conf /etc/memryx/mxa_manager.conf
 fi
-if [ ! -L /etc/memryx/power.config ]; then
-  ln -s &plugin;/power.config /etc/memryx/power.config
+if [ ! -L /etc/memryx/power.conf ]; then
+  ln -s &plugin;/power.conf /etc/memryx/power.conf
 fi
 
 #Get base port from config
-BASE_PORT="$(cat /etc/memryx/mxa_manager.config | grep "BASE_PORT" | cut -d '=' -f2)"
+BASE_PORT="$(cat /etc/memryx/mxa_manager.conf | grep "BASE_PORT" | cut -d '=' -f2)"
 
 #Check if daemon is already running and start mxa_manager daemon in background if not running
 if [ -z "$(pgrep --ns $$ mxa_manager)" ]; then
